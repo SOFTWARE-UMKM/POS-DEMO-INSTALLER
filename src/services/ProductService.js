@@ -23,20 +23,16 @@ class ProductService {
         });
         return data;
     }
-    static async getAll({ pagination, queryPage, querySize, search, barcode }) {
+    static async getAll({ pagination, queryPage, querySize, search }) {
         const page = new pagination_1.Pagination(Number(queryPage) || 0, Number(querySize) || 10);
         const whereCondition = {
             deleted: 0
         };
         if (search) {
-            whereCondition.name = { [sequelize_1.Op.like]: `%${search}%` };
-        }
-        console.log('barcode:');
-        console.log(barcode);
-        console.log(barcode === undefined);
-        console.log(barcode === 'undefined');
-        if (Boolean(barcode)) {
-            whereCondition.barcode = barcode;
+            whereCondition[sequelize_1.Op.or] = [
+                { name: { [sequelize_1.Op.like]: `%${search}%` } },
+                { barcode: { [sequelize_1.Op.like]: `%${search}%` } }
+            ];
         }
         console.log('whereCondition', whereCondition);
         const result = await ProductModel_1.ProductModel.findAndCountAll({
